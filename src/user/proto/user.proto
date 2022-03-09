@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DeleteUser(DeleteUserRequest) returns (User);
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  Role role = 6;
+  string phoneNumber = 7;
+  string profilePictureUrl = 8;
+  bool isEmailVerified = 9;
+  bool isActive = 10;
+  double activeUntil = 11;
+  double createdAt = 12;
+  double updatedAt = 13;
+}
+
+message ListUsersRequest {
+  int32 offset = 1;
+  int32 limit = 2;
+  OrderBy orderBy = 3;
+  OrderType orderType = 4;
+}
+
+message ListUsersResponse {
+  int32 totalDocs = 1;
+  int32 limit = 2;
+  int32 page = 3;
+  int32 totalPages = 4;
+  repeated User docs = 5;
+  int32 nextPage = 6;
+  int32 prevPage = 7;
+  int32 pagingCounter = 8;
+  bool hasPrevPage = 9;
+  bool hasNextPage = 10;
+}
+
+message CreateUserRequest {
+  User user = 1;
+}
+
+message GetUserRequest {
+  oneof GetUserRequestArgs {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+  }
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  User user = 2;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+enum Role {
+  ADMIN = 0;
+  USER = 1;
+}
+
+enum OrderBy {
+  DEFAULT = 0;
+  CREATED_AT = 1;
+}
+enum OrderType {
+  ASC = 0;
+  DESC = 1;
+}

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: user-svc
+  name: user-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-svc
+  template:
+    metadata:
+      labels:
+        app: user-svc
+    spec:
+      containers:
+        - name: user-svc
+          image: yourDockerImage
+          imagePullPolicy: IfNotPresent
+          # env:
+          #   - name: MONGODB_URI
+          #     value: yourMongoDBURI
+          ports:
+            - containerPort: 50051
+              name: grpc
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: user-svc-service
+  name: user-svc-service
+spec:
+  selector:
+    app: user-svc
+  ports:
+    - name: grpc
+      port: 50051
+      protocol: TCP
+      targetPort: grpc
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: ingress
+  annotations:
+    dev.okteto.com/generate-host: "true"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: user.svc
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: user-svc-service
+                port:
+                  name: grpc
